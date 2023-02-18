@@ -1,0 +1,16 @@
+const exp=require('express')
+const bodyparser=require('body-parser')
+const sequelize=require('./models/user')
+const cro=require('cors') 
+const controller=require('./controller/booking')
+const app=exp()
+app.use(bodyparser.json({extended :false}))
+app.use(cro()) 
+
+app.post('/delete/:deleteid',controller.deleteItem)
+app.use('/delete/:deleteid',controller.deleteItem)
+app.get('/user/get',controller.getUser)
+app.post('/user/post',controller.postUser)
+app.post('/edit/:editid',controller.editItem)
+sequelize.sync({force:false}).then((e)=> app.listen(3000)).catch(e=>console.log(e))
+    
