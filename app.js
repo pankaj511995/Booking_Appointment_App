@@ -12,5 +12,5 @@ app.use('/delete/:deleteid',controller.deleteItem)
 app.get('/user/get',controller.getUser)
 app.post('/user/post',controller.postUser)
 app.post('/edit/:editid',controller.editItem)
-sequelize.sync({force:false}).then((e)=> app.listen(3000)).catch(e=>console.log(e))
+sequelize.sync({force:true}).then((e)=> app.listen(3000)).catch(e=>console.log(e))
     
