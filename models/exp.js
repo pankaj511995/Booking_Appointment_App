@@ -7,13 +7,14 @@ module.exports= sequelize.define('User',{
         allowNull:false,
         primaryKey:true
     },
-    name:Sequelize.STRING,
-    email: {
-        type:Sequelize.STRING, 
-        unique:true
+    amount:{
+       type:Sequelize.DOUBLE,
+       defaultValue:0
+       
     },
-    phone :{
-       type: Sequelize.INTEGER,
-       unique:true
-    }
+    comment:{
+       type: Sequelize.STRING, 
+       defaultValue:" "
+    },
+    catagory :Sequelize.STRING
 })

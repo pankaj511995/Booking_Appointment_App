@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expense</title>
+    <style>
+      .total{
+        font-size: medium;
+        width: 100px;
+        font-weight: 700;
+      }
+      #error{
+        color: rgb(239, 6, 6);
+      }
+    </style>
+</head>
+<body>
+    <div class="head1">
+        <h1>Expense tracket</h1>
+    </div>
+    <hr>
+   <div class="contaner">
+ <form  onsubmit="submitItem()" >
+        <label for="amount">amount</label>
+         <input type="number" id="amount">
+         <label for="comment">comment</label>
+         <input type="text" id="comment" >
+         <label for="chose">Catagory</label>
+         <select name="option" id="catagory">
+          <option value="food">food</option>
+          <option value="helth">helth</option>
+          <option value="traveling">traveling</option>
+          <option value="education">education</option>
+          <option value="upskilling">upskilling</option>
+         </select>
+        
+    <input type="submit" class="submit" id="submit" value="submit">
+       
+</form>
+<div id="error"></div>
+<hr>
+<div id="total"></div>
+<hr>
+<div id="showItem">
+</div>
+
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.0/axios.min.js"></script>
+ <script>
+       const addItem=document.getElementById('showItem')
+function shawitem(){
+      try{
+           axios.get(`http://localhost:3000/expense/get`).then(e=>e.data.forEach(e =>showScreen(e,2)))
+      }catch(er){  console.log('error while loading screen',er)  }
+    }
+document.getElementById('submit').addEventListener('click', async(e)=>{
+     try{
+          e.preventDefault()
+          let obj={
+          amount : document.getElementById('amount').value,
+          comment : document.getElementById('comment').value,
+          catagory: document.getElementById('catagory').value 
+          }
+        totalAmount(-(obj.amount))//function is made fro deleting so send negative value for adding
+    if(obj.amount==='' || obj.comment===''){
+          //  let err=document.getElementById('error')
+          //   err.innerHTML='something went wrong'
+          //   setTimeout(()=> err.innerHTML='',3000)
+
+      }else{
+        showScreen(obj,0)
+      } 
+    }catch(e){  console.log('error while entring data',e)   }
+  })
+async function showScreen(obj,val){
+   try{
+          let li=document.createElement('li')
+            li.appendChild(document.createTextNode(`${obj.amount} : ${obj.comment} : ${obj.catagory}`))
+            li.value=`${obj.amount}`
+            let butt=document.createElement('button')
+            butt.appendChild(document.createTextNode('Delete'))
+            butt.className='delete' 
+            let edit=document.createElement('button')
+            edit.appendChild(document.createTextNode('Edit'))
+            edit.className='edit'     
+            li.appendChild(butt)
+            li.appendChild(edit)
+            addItem.appendChild(li)
+          
+     if(val===0){
+          await axios.post(`http://localhost:3000/expense/post`,obj).then(e=>{
+          let l=e.data.id
+          butt.value=l
+          edit.value=l
+         })
+        }
+     else{
+          butt.value=obj.id
+          edit.value=obj.id 
+        }
+   }catch(e){   
+    document.getElementById('error').innerHTML='something went wrong'
+    console.log('error while screen showing',e)   }
+  }
+
+addItem.addEventListener('click',(e)=>{
+  try{
+         let ed= e.target.classList.contains('edit');
+    if(e.target.classList.contains('delete') || ed){
+          let ur=e.target.value
+          let li=e.target.parentElement
+          totalAmount(li.value)
+          console.log('target',li.value)
+          addItem.removeChild(li)
+     if(!ed){
+            axios.post(`http://localhost:3000/delete/${ur}`)
+      } else{
+            axios.post(`http://localhost:3000/edit/${ur}`).then(e=>{  //editing item and poping to for editing
+              const v=e.data[0]
+              document.getElementById('amount').value=v.amount
+              document.getElementById('comment').value=v.comment
+              document.getElementById('catagory').value=v.catagory
+            }).catch(e=>console.log('error while editing',e))
+          }
+        }
+  } catch(e){console.log('error while deleting',e)}
+})
+
+function totalAmount(amount=0){
+      const totalTable=document.getElementById('total')
+  try{
+    if(amount===0){
+        axios.get(`http://localhost:3000/totalAmount`).then(e=>{
+        totalTable.innerHTML=` <button class="total" >${e.data-amount}</button><strong> Amount You expended</strong>`
+        totalTable.value=`${e.data-amount}`
+     })
+  }else{
+      totalTable.value=totalTable.value-amount
+      totalTable.innerHTML=`<strong> <button class="total" value="">${totalTable.value}</button> Amount You expended</strong>`
+    }
+  }catch(e){   console.log(e) }
+}
+totalAmount()
+shawitem()//print when screen load .....or can use dom loded 
+    </script>
+</body>
+</html>
+   
